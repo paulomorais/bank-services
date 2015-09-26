@@ -3,7 +3,6 @@ package com.phm.dao;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
@@ -142,7 +141,7 @@ public class UserDAO extends GenericDAO<User> {
 	    	throw new EntityExistsException(ex);
 	    }	
 		
-		List<Account> accounts = new ArrayList<Account>();
+		List<Account> accounts;
 		
 		User user = new User();
 		user.setName("Nelson Mandela");
@@ -171,22 +170,6 @@ public class UserDAO extends GenericDAO<User> {
 					em.clear();
 					counter = 0;
 				}
-				
-				for (int a = 1; a <= nAccounts; a++) {
-					Account account = new Account();
-					account.setBalance( 1000 );
-					account.setUser(user);
-					em.persist(account);
-					counter++;
-					accounts.add(account);
-					if (counter > counterLimit){
-//						em.getTransaction().commit();
-//						em.getTransaction().begin();
-						em.flush();
-						em.clear();
-						counter = 0;
-					}
-				}
 			}
 			em.getTransaction().commit();
 //			em.flush();
@@ -195,16 +178,43 @@ public class UserDAO extends GenericDAO<User> {
 	    	throw new EntityExistsException(ex);
 	    }
 		
-		em.getTransaction().begin();
+		
+		List<User> users = new UserDAO().list(0, nUsers + 1);
+		for (Iterator iterator = users.iterator(); iterator.hasNext();) {
+			User user2 = (User) iterator.next();
+			em.getTransaction().begin();
+			for (int a = 1; a <= nAccounts; a++) {
+				Account account = new Account();
+				account.setBalance( 1000 );
+				account.setUser(user2);
+				em.persist(account);
+				counter++;
+				if (counter > counterLimit){
+					em.getTransaction().commit();
+					em.getTransaction().begin();
+//					em.flush();
+//					em.clear();
+					counter = 0;
+				}
+			}
+			em.getTransaction().commit();
+		}
+		
+		
+		
+		
+		
+		
+		accounts = new AccountDAO().list(null, 0, nAccounts * (nUsers + 1) );
+		
 		counter = 0;
 		int index = 0;
 		for (Iterator<Account> iterator = accounts.iterator(); iterator.hasNext();) {
 			Account account = (Account) iterator.next();
 			
 			System.err.println("create transactions for account: " + index++);
-			
+			em.getTransaction().begin();
 			try {
-//				em.getTransaction().begin();
 			
 				for (int t = 1; t <= nTransactions; t++) {
 					Transaction transaction = new Transaction();
@@ -227,7 +237,7 @@ public class UserDAO extends GenericDAO<User> {
 						transactionReceiver.setValue(value);
 						
 						accountReceiver.setBalance(accountReceiver.getBalance() + value);
-						em.persist(accountReceiver);
+						em.merge(accountReceiver);
 						em.persist(transactionReceiver);
 						counter += 2;
 						
@@ -243,8 +253,7 @@ public class UserDAO extends GenericDAO<User> {
 						}
 					}
 					em.persist(transaction);
-					em.persist(account);
-					counter += 2;
+					counter++;
 				}
 				if (counter > counterLimit){
 //					em.getTransaction().commit();
@@ -257,10 +266,11 @@ public class UserDAO extends GenericDAO<User> {
 		    } catch (RollbackException ex) {
 		    	throw new EntityExistsException(ex);
 		    }
+			em.merge(account);
+			em.getTransaction().commit();
 		}
 //		em.flush();
 //		em.clear();
-		em.getTransaction().commit();
 	}
 	
 	private static String[] names = {
