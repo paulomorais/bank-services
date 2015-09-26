@@ -1,22 +1,18 @@
-
-<persistence version="2.0"
-	xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="
-            http://java.sun.com/xml/ns/persistence
-            http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
-	<persistence-unit name="mongodb" transaction-type="RESOURCE_LOCAL">
-		<class>com.phpm.model.Account</class>
-		<class>com.phpm.model.Transaction</class>
-		<class>com.phpm.model.User</class>
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.0" xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
+	<persistence-unit name="bank-services" transaction-type="RESOURCE_LOCAL">
+		<class>com.phm.model.Account</class>
+		<class>com.phm.model.Transaction</class>
+		<class>com.phm.model.User</class>
 		<properties>
-			<property name="eclipselink.target-database"
-				value="org.eclipse.persistence.nosql.adapters.mongo.MongoPlatform" />
-			<property name="eclipselink.nosql.connection-spec"
-				value="org.eclipse.persistence.nosql.adapters.mongo.MongoConnectionSpec" />
-			<property name="eclipselink.nosql.property.mongo.port" value="27017" />
-			<property name="eclipselink.nosql.property.mongo.host" value="127.0.0.1" />
-			<property name="eclipselink.nosql.property.mongo.db" value="bankdb" />
-<!-- 			<property name="eclipselink.logging.level" value="FINE" /> -->
+			<property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />
+			<property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/bank-services" />
+			<property name="javax.persistence.jdbc.user" value="root" />
+			<property name="javax.persistence.jdbc.password" value="" />
+<!-- 			<property name="org.eclipse.persistence.config.CacheUsage" value="DoNotCheckCache" /> -->
+			<property name="eclipselink.ddl-generation" value="drop-and-create-tables"/>
+<!-- 			<property name="eclipselink.ddl-generation" value="create-tables"/> -->
+			
 		</properties>
 	</persistence-unit>
 </persistence>
